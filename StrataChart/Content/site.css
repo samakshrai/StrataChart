@@ -1,0 +1,47 @@
+﻿.form-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 30px;
+    max-width: 1200px;
+    margin: auto;
+    flex-wrap: wrap;
+}
+
+.input-card {
+    flex: 1;
+    min-width: 300px;
+    max-width: 400px;
+    background: #fafafa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+    .input-card label {
+        display: block;
+        margin-top: 12px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .input-card input[type="text"] {
+        width: 100%;
+        padding: 6px 8px;
+        margin-top: 4px;
+        font-size: 13px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .input-card .upload-btn {
+        margin-top: 16px;
+    }
+
+.diagram-area {
+    flex: 1;
+    min-width: 300px;
+    max-width: 600px;
+}

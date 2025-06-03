@@ -90,7 +90,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\site.css" />
     <Content Include="Global.asax" />
+    <Content Include="StrataStyle.css" />
     <Content Include="StrataUpload.aspx" />
     <Content Include="StrataVisual.aspx" />
     <Content Include="Web.config" />
@@ -100,7 +102,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StrataLayer.cs" />
+    <Compile Include="Styles\StrataLayer.cs" />
     <Compile Include="StrataUpload.aspx.cs">
       <DependentUpon>StrataUpload.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
