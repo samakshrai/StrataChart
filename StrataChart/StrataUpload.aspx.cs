@@ -22,8 +22,7 @@ namespace StrataChart
             {
                 if (Session["UploadSuccess"] != null && (bool)Session["UploadSuccess"])
                 {
-                    LoadStrataDiagram();
-                   
+                    LoadStrataDiagram();                   
                 }
             }
         }
@@ -109,7 +108,6 @@ namespace StrataChart
                                     return;
                                 }
 
-
                                 // Insert into DB with UploadCode
                                 string query = @"INSERT INTO StrataLayers (Material, StartDepth, EndDepth, PatternCssClass, UploadCode) 
                                                  VALUES (@mat, @start, @end, @pattern, @code)";
@@ -124,7 +122,7 @@ namespace StrataChart
                         }
                         LoadStrataDiagram();
                         ScriptManager.RegisterStartupScript(this, this.GetType(), "uploadSuccess",
-                        "alert('✅ Excel data uploaded and saved successfully.');", true);
+                        "alert('Excel data uploaded and saved successfully.');", true);
                     }
                     catch (Exception ex)
                     {
@@ -215,6 +213,6 @@ namespace StrataChart
             siteCmd.ExecuteNonQuery();
            
         }
-    
+
     }
 }
