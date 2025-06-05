@@ -23,7 +23,7 @@ namespace StrataChart
                 if (Session["UploadSuccess"] != null && (bool)Session["UploadSuccess"])
                 {
                     LoadStrataDiagram();
-                    Session.Remove("UploadSuccess");
+                   
                 }
             }
         }
@@ -31,8 +31,7 @@ namespace StrataChart
         protected void btnUpload_Click(object sender, EventArgs e)
         {
             SaveExcelToDatabase();
-            Session["UploadSuccess"] = true;
-            Response.Redirect(Request.RawUrl);
+            
         }
 
         private void SaveExcelToDatabase()
@@ -53,24 +52,65 @@ namespace StrataChart
                     });
 
                     DataTable table = result.Tables[0];
+                    if (table.Columns.Count != 4)
+                    {
+                        lblMessage.ForeColor = System.Drawing.Color.Red;
+                        lblMessage.Text = "Error: Excel file must have exactly 4 columns: Material, StartDepth, EndDepth, PatternCssClass.";
+                        return;
+                    }
 
                     try
                     {
-                        // ✅ Generate unique UploadCode
+                        // Generate unique UploadCode
                         Guid uploadCode = Guid.NewGuid();
                         Session["CurrentUploadCode"] = uploadCode;
                         using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["StrataDB"].ToString()))
                         {
                             conn.Open();
 
+                            SaveInputFieldData(uploadCode);
                             foreach (DataRow row in table.Rows)
                             {
-                                string material = row[0].ToString();
-                                double startDepth = Convert.ToDouble(row[1]);
-                                double endDepth = Convert.ToDouble(row[2]);
-                                string pattern = row[3].ToString();
+                                // Validation 2: Empty cell check
+                                if (row.ItemArray.Any(field => field == null || string.IsNullOrWhiteSpace(field.ToString())))
+                                {
+                                    lblMessage.ForeColor = System.Drawing.Color.Red;
+                                    lblMessage.Text = "Error: Excel contains empty cells. Please fill all required fields.";
+                                    return;
+                                }
 
-                                // ✅ Insert into DB with UploadCode
+                                string material = row[0].ToString().Trim();
+
+                                // Validation 3: Check that StartDepth and EndDepth are numeric
+                                if (!double.TryParse(row[1].ToString(), out double startDepth) ||
+                                    !double.TryParse(row[2].ToString(), out double endDepth))
+                                {
+                                    lblMessage.ForeColor = System.Drawing.Color.Red;
+                                    lblMessage.Text = $"Error: StartDepth and EndDepth must be numeric. Found error in row with material '{material}'.";
+                                    return;
+                                }
+
+                                // Validation 4: StartDepth must be less than EndDepth
+                                if (startDepth >= endDepth)
+                                {
+                                    lblMessage.ForeColor = System.Drawing.Color.Red;
+                                    lblMessage.Text = $"Error: StartDepth must be less than EndDepth for material '{material}'.";
+                                    return;
+                                }
+
+                                string pattern = row[3].ToString().Trim();
+
+                                // Validation 5: PatternCssClass must be one of the accepted values
+                                string[] validPatterns = { "clay", "sand", "gravel" };
+                                if (!validPatterns.Contains(pattern))
+                                {
+                                    lblMessage.ForeColor = System.Drawing.Color.Red;
+                                    lblMessage.Text = $"Error: Invalid pattern '{pattern}'. Allowed values: clay, sand, gravel.";
+                                    return;
+                                }
+
+
+                                // Insert into DB with UploadCode
                                 string query = @"INSERT INTO StrataLayers (Material, StartDepth, EndDepth, PatternCssClass, UploadCode) 
                                                  VALUES (@mat, @start, @end, @pattern, @code)";
                                 SqlCommand insertCmd = new SqlCommand(query, conn);
@@ -82,9 +122,9 @@ namespace StrataChart
                                 insertCmd.ExecuteNonQuery();
                             }
                         }
-
-                        lblMessage.ForeColor = System.Drawing.Color.Green;
-                        lblMessage.Text = "Excel data uploaded and saved.";
+                        LoadStrataDiagram();
+                        ScriptManager.RegisterStartupScript(this, this.GetType(), "uploadSuccess",
+                        "alert('✅ Excel data uploaded and saved successfully.');", true);
                     }
                     catch (Exception ex)
                     {
@@ -155,5 +195,26 @@ namespace StrataChart
             double totalHeight = currentTop;
             strataPanel.Height = new Unit(totalHeight, UnitType.Pixel);
         }
+    
+        private void SaveInputFieldData(Guid uploadCode)
+        {
+            conn.Open();
+            string siteQuery = @"INSERT INTO SiteInfo
+                            (SiteName, DrillingDepth, LoggingDepth, BlankPipeLength, ScreenPipeLength, BailPlug, UploadCode)
+                            VALUES
+                            (@site, @drill, @log, @blank, @screen, @plug, @code)";
+            SqlCommand siteCmd = new SqlCommand(siteQuery, conn);
+            siteCmd.Parameters.AddWithValue("@site", txtSiteName.Text);
+            siteCmd.Parameters.AddWithValue("@drill", txtDrillingDepth.Text);
+            siteCmd.Parameters.AddWithValue("@log", txtLoggingDepth.Text);
+            siteCmd.Parameters.AddWithValue("@blank", txtBlankPipeLength.Text);
+            siteCmd.Parameters.AddWithValue("@screen", txtScreenPipeLength.Text);
+            siteCmd.Parameters.AddWithValue("@plug", txtBailPlug.Text);
+            siteCmd.Parameters.AddWithValue("@code", uploadCode);
+
+            siteCmd.ExecuteNonQuery();
+           
+        }
+    
     }
 }

@@ -44,7 +44,7 @@
     /* Strata Container (Diagram) */
     .strata-container {
         position: relative;
-        width: 290px;
+        width: 330px;
         border: 3px solid #ada9a9;
         background: #fff;
         padding-left: 20px;
@@ -166,4 +166,6 @@
         border-bottom: 6px solid transparent;
         border-left: 6px solid #ccc;
     }
+
+    
 

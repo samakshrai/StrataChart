@@ -32,8 +32,8 @@
         <asp:TextBox ID="txtBailPlug" runat="server" />
 
         <asp:FileUpload ID="FileUpload1" runat="server" CssClass="upload-btn" />
-        <asp:Button ID="btnUpload" runat="server" Text="Generate" OnClick="btnUpload_Click" CssClass="upload-btn" />
-        <asp:Label ID="lblMessage" runat="server" ForeColor="Red" />
+        <asp:Button ID="btnUpload" runat="server" Text="Save" OnClick="btnUpload_Click" CssClass="upload-btn" />
+        <asp:Label ID="lblMessage" runat="server"  />
     </div>
 
     <!-- Diagram Area -->
